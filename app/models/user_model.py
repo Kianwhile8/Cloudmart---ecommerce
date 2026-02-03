@@ -88,7 +88,7 @@ class UserModel:
 
         if bcrypt.checkpw(password.encode("utf-8"), password_hash):
             user_data = user.copy()
-            del user_date["password_hash"]
+            del user_data["password_hash"]
             return user_data
         #password in incorrect
             
