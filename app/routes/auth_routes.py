@@ -78,14 +78,19 @@ def register():
         }), 400
     
     #creating user
+    try:
+        user = user_model.create_user(email, password, name, role)
+    except Exception as e:
+        logger.error(f"Error creating user: {email}, {str(e)}")
+        return Jsonify({'error': 'internal server error'}), 500
     if user:
         logger.info(f"REGISTRATION COMPLETE: {email}")
         return Jsonify({
             'message': 'registration succesful',
             'user': {
-                'email': user['email']
-                'name': user['name']
-                'role': user['role']
+                'email': user['email'],
+                'name': user['name'],
+                'role': user['role'],
             }
         }), 201
     else:
@@ -121,9 +126,9 @@ def login():
     user = user_model.verify_password(email,password)
 
     if user:
-        session['user_email'] = uiser ['email']
-        session['user_name'] = uiser ['name']
-        session['user_role'] = uiser ['role']
+        session['user_email'] = user ['email']
+        session['user_name'] = user ['name']
+        session['user_role'] = user ['role']
         session.permanent = True # creates session storing it using cookies
 
         logger.info(f"user logged in: {email}")
@@ -131,9 +136,9 @@ def login():
         return Jsonify({
             'message': 'login successful',
             'user':{
-                'email': user['email']
-                'name': user ['name']
-                'role' user ['role']
+                'email': user['email'],
+                'name': user ['name'],
+                'role': user ['role'],
             }
          }), 200
     else:
@@ -156,7 +161,7 @@ def logout():
     '''adding profile routes'''
 
 @bp.route('/profile', methods=['GET'])
-@login_required # user must be logged in
+@required_login # user must be logged in
 def profile():
     '''gets current pofile information requires the user must be logged in '''
     user = user_model.get_user_by_email(session['user_email'])
@@ -167,13 +172,13 @@ def profile():
     return Jsonify({'error': 'user not found'}), 404
 
 @bp.route('/profile', methods = ['PUT'])
-@login_required
+@required_login
 
 def update_profile():
     '''updates current user profile'''
 
     data = request.get_json()
-
+    
     #only allowed certied fields to be setup
 
     allowed_fields = ['name', 'phone', 'address']
@@ -182,12 +187,19 @@ def update_profile():
     if not update_data:
         return Jsonify ({'error: no valid fields to update'}), 400
     # updating user
+    try:
+        user = user_model.get_user_by_email(session['user_email'])
 
-    if user:
+        if not user:
+            return Jsonify({'error': 'user not found'}), 404
 
         if 'name' in update_data:
             session['user_name'] = update_data['name']
 
-            return Jsonify({'message' : 'profile updates succesfully'}), 200
-        return jsoinfy ({'error' : 'update failed'}), 500
+        user_model.update_user(session['user_email'], update_data)
+        return Jsonify({'message' : 'profile updated successfully'}), 200
+    except Exception as e:
+        logger.error(f"Error updating profile for {session['user_email']}: {str(e)}")
+        return Jsonify({'error': 'internal server error'}), 500 
+
     
