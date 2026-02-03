@@ -29,7 +29,7 @@ except Exception as e:
     logger.warning(f"running in devlopment mode without GCP")
 
 
-#firebase initialising
+#firebase initialising order_routes
 
 try:
     if not firebase_admin._apps:
@@ -48,7 +48,7 @@ from app.routes import auth_routes, product_routes, order_routes, admin_routes
 
 app.register_blueprint(auth_routes.bp)
 app.register_blueprint(product_routes.bp)
-app.register_blueprint(order_routes)
+app.register_blueprint(order_routes.bp)
 app.register_blueprint(admin_routes.bp)
 
 @app.route('/')
