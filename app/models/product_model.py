@@ -1,6 +1,7 @@
 """firebase firestore database for product model"""
 
-import firebase_admin 
+import firebase_admin
+from firebase_admin import credentials
 from firebase_admin import firestore
 from datetime import datetime
 import logging
@@ -43,7 +44,7 @@ class ProductModel:
             doc = doc_ref.get()
 
             if doc.exists:
-                product = doc.to.dict()
+                product = doc.to_dict()
                 product["id"] = doc.id 
                 return product
                 # adds id to dict
