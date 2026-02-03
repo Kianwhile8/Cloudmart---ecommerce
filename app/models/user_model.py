@@ -60,39 +60,39 @@ class UserModel:
             logger.error(f"Failed to create uuser: {e}")
             return None
         
-        def get_user_email(self, email):
-            """retrievs user by email"""
+    def get_user_email(self, email):
+        """retrievs user by email"""
 
-            key = self.client.key(self.kind,email)
-            entity = self.client.get(key)
-            return self._entity_to_dict(entity) if entity else None
+        key = self.client.key(self.kind,email)
+        entity = self.client.get(key)
+        return self._entity_to_dict(entity) if entity else None
         
-        def verify_password (self, email, password):
-            """very password for user login
+    def verify_password (self, email, password):
+        """very password for user login
             
-            -get user from database
-            - hash provided password
-            compare with stored hash
-            return user data if matches"""
+        -get user from database
+        - hash provided password
+        compare with stored hash
+        return user data if matches"""
 
-            #get user
-            user=self.get_user_by_email(email)
-            if not user:
-                return None
-            
-            #convert stored has to bytes
-
-            password_hash = user ["password_hash".encode("utf-8")]
-
-            #verify password
-
-            if bcrypt.checkpw(password.encode("utf-8"), password_hash):
-                user_data = user.copy()
-                del user_date["password_hash"]
-                return user_data
-            #password in incorrect
-            
+        #get user
+        user=self.get_user_by_email(email)
+        if not user:
             return None
+            
+        #convert stored has to bytes
+
+        password_hash = user ["password_hash".encode("utf-8")]
+
+        #verify password
+
+        if bcrypt.checkpw(password.encode("utf-8"), password_hash):
+            user_data = user.copy()
+            del user_date["password_hash"]
+            return user_data
+        #password in incorrect
+            
+        return None
         
     def update_user(self, email, **kwargs):
 
