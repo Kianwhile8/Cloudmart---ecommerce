@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, ForiegnKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
@@ -15,11 +15,11 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     order_number = Column(String(50), unique=True, nullable=False, index=True)
-    customer_email = Column(String(255), nullable=False, index=True)
     payment_method = Column(String(50), nullable=False)
-    status = Column(String(50), nullable=False, default='pending')
+    customer_email = Column(String(255), nullable=False, index=True)
     shipping_address = Column(Text, nullable=False)
     total_amount = Column(Float, nullable=False)
+    status = Column(String(50), nullable=False, default='pending')
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
@@ -31,7 +31,7 @@ class OrderItem(base):
 
     id = Column(Integer, primary_key=True, autoincrement= True)
     product_id = Column(String(100), nullable=False)
-    order_id = Column(Integer,ForiegnKey('order_id'), nullable= False)
+    order_id = Column(Integer,ForeignKey('orders.id'), nullable= False)
     product_name = Column(String(255),nullable= False)
     subtotal = Column(float, nullable=False)
     quantity = Column(Integer, nullable=False)
@@ -50,7 +50,7 @@ class OrderModel:
             )
 
         self.engine = create_engine (db_connection_string, echo=False)
-        Base.metadata.create_all(self.engine)
+        Base.metadata.create_all(self.engine) 
         self.session = sessionmaker(bind=self.engine)
     
     def create_order(self,items, customer_email, payment_method, shipping_address):
