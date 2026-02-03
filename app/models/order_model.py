@@ -44,8 +44,7 @@ class OrderModel:
     def __init__(self, db_connection_string=None):
         '''initalises database connection'''
         if db_connection_string is None:
-            db_connection_string = os.environ.get(
-                'DATABSE_URL',
+            db_connection_string = os.environ.get('DATABASE_URL',
                 'mysql+pymysql://root:password@localhost:3306/cloudmart'
             )
 
@@ -80,8 +79,8 @@ class OrderModel:
                     order_id=order.id,
                     product_id=item['product_id'],
                     unit_price=item['unit_price'],
-                    quanitty=item['quanity'],
-                    product_name=item['product_naame'],
+                    quantity=item['quanity'],
+                    product_name=item['product_name'],
                     subtotal=item['quantity'] *item['unit_price']
                 )
                 session.add(order_item)
@@ -188,5 +187,5 @@ class OrderModel:
             ]
         }
 
-                
+             
                         
