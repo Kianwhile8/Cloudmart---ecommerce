@@ -1,12 +1,13 @@
 """firebase firestore database for product model"""
 
-import firebase_admin import firestore
+import firebase_admin 
+from firebase_admin import firestore
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-class productModel:
+class ProductModel:
     """product model using firestrore fr semi structured data"""
 
     def __init__(self, firestore_client):
@@ -25,7 +26,7 @@ class productModel:
             product_data["sales"] = 0   
             # docutment with auto generations
 
-            doc_ref = self.db.colleciton(self.collection).document()
+            doc_ref = self.db.collection(self.collection).document()
             doc_ref.set(product_data)
 
             logger.info(f"product created: {doc_ref.id}")
@@ -36,7 +37,7 @@ class productModel:
         
 
     def get_product(self, product_id):
-            "gets product by product id"
+        "gets product by product id"
         try:
             doc_ref = self.db.collection(self.collection).document(product_id)
             doc = doc_ref.get()
@@ -44,7 +45,7 @@ class productModel:
             if doc.exists:
                 product = doc.to.dict()
                 product["id"] = doc.id 
-                return product_data
+                return product
                 # adds id to dict
             return None
         except Exception as e:  
@@ -56,7 +57,7 @@ class productModel:
         automaticcaly updates updated at timestamp"""
 
         try:
-            doc_ref = self.db.collection(self.colleciton).document(product_id)
+            doc_ref = self.db.collection(self.collection).document(product_id)
 
             update_data["updated at"] = firestore.SERVER_TIMESTAMP
 
@@ -81,7 +82,7 @@ class productModel:
         """lists products with optinal filters """
 
         try:
-            query = self.db.collection(self.colleciton)
+            query = self.db.collection(self.collection)
 
             if filters:
                 if "category" in filters:
@@ -104,7 +105,7 @@ class productModel:
             products =[]
             for doc in query.stream():
                 product = doc.to_dict()
-                product["id"] = dic.id
+                product["id"] = doc.id
                 products.append(product)
             return products 
         except Exception as e:
@@ -113,24 +114,24 @@ class productModel:
         
     def product_search(self, search_term, limit = 20):
         '''searches for products by name or description'''
-    try:
+        try:
         #fetches more than limit to account for filtering
 
-        all_products = self.list_products(limit=limit * 5) 
-        serach_lower = search_term.lower()
-        results =[]
-        for product in all_products:
-            name_match = serach_lower in product.get("name", "").lower()
-            desc_match = serach_lower in product.get("description", "").lower()
-            if name_match or desc_match:
-                results.append(product)
+            all_products = self.list_products(limit=limit * 5) 
+            serach_lower = search_term.lower()
+            results =[]
+            for product in all_products:
+                name_match = serach_lower in product.get("name", "").lower()
+                desc_match = serach_lower in product.get("description", "").lower()
+                if name_match or desc_match:
+                    results.append(product)
 
-                if len(results) >= limit:
-                    break 
-        return results
-    except Exception as e:
-        logger.error(f"Failed to serach products: {e}" )
-        return []
+                    if len(results) >= limit:
+                        break 
+            return results
+        except Exception as e:
+            logger.error(f"Failed to serach products: {e}" )
+            return []
 
 
     def view_increase(self,product_id):
@@ -139,35 +140,38 @@ class productModel:
 
         try:
             doc_ref = self.db.collection(self.collection).document(product_id)
-            doc_ref.uipdate({"views": firestore.Increment(1)})
+            doc_ref.update({"views": firestore.Increment(1)})
             return True
         except Exception as e:
             logger.error (f" filed ot increment views : {e}")
             return False
         
-        def sales_icnrease(self,product_id,quantity=1):
+    def sales_icnrease(self,product_id,quantity=1):
 
-            """increase sales count and decrease stock automaticaly"""
+        """increase sales count and decrease stock automaticaly"""
 
         try:
-            doc_ref = self.db.colleciton(self.colleciton).document(prduct_id)
+            doc_ref = self.db.collection(self.collection).document(product_id)
             doc_ref.update({
-                "sales_count" : firestore.increment(quantity),
-                "stock_quantity": firestore.increment(-qantity)
+            "sales" : firestore.increment(quantity),
+            "stock_quantity": firestore.Increment(-quantity)
             })
             logger.info(f"updates sales for product {product_id}: + {quantity}")
             return True
+    
         except Exception as e:
+
             logger.error(f"fialed to udpates sales :{e}")
             return False
         
-        def products_by_category(self,category, limit=50):
+    def products_by_category(self,category, limit=50):
 
-            '''egets all prodcuts in specific categrory'''
+            '''gets all prodcuts in specific categrory'''
 
             return self.list_products(filters={"category":category}, limit=limit)
         
-        def vendor_products(self,vendor_email, limit = 100):
+    def vendor_products(self,vendor_email, limit = 100):
             '''gest all produts from specific vendor'''
 
             return self.list_products(filters= {"vendor_email" : vendor_email}, limit = limit)
+        
