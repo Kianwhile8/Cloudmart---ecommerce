@@ -10,7 +10,7 @@ from google.cloud import datastore
 from firebase_admin import firestore
 import logging
 
-logger = logging.getlogger(__name__)
+logger = logging.getLogger(__name__)
 bp = Blueprint('admin', __name__, url_prefix ='/admin')
 
 datastore_client = datastore.client()
@@ -25,9 +25,9 @@ product_model = ProductModel(db)
 
 def admin_dashboard():
 
-    return render_template ('admin/dashoard.html')
+    return render_template ('admin/dashboard.html')
 
-bp.route ('/api/dashboard', methods =['GET'])
+@bp.route ('/api/dashboard', methods =['GET'])
 @required_login
 @role_required
 def get_dashboard_data ():
@@ -97,7 +97,7 @@ def update_user_role(email):
 def list_all_products():
     '''creates a list of  all products'''
     limit = int(request.args.get('limit', 100))
-    products = product_model.list_products(limiit=limit)
+    products = product_model.list_products(limit=limit)
     return jsonify(products), 200
 
 @bp.route ('api/products/<product_id>/activate', methods =['PUT'])
