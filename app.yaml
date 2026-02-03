@@ -7,7 +7,7 @@ env_variables:
 
   GOOGLE_CLOUD_PROJECT: "cloudmart-ecommerce"
 
-  DATABASE_URL: 'mysql+pymysql://cloudmart_user:BigBrain321?!@/cloudmart?unix_socket=/cloudsql/YOUR_CONNECTION_NAME'
+  DATABASE_URL: 'mysql+pymysql://cloudmart_user:BigBrain321?!@/cloudmart?unix_socket=/cloudsql/cloudmart-commerce:europe-west1:cloudmart-db'
 
 handlers:
 - url: /static
