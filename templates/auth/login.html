@@ -1,0 +1,81 @@
+{% block title %}Login - CloudMart{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Login</h3>
+            </div>
+            <div class="card-body p-4">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div id="error-message" class="alert alert-danger d-none"></div>
+                    <button type="submit" class="btn btn-primary w-100 py-2">
+                        <span id="submit-text">Login</span>
+                        <span id="submit-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <p class="mb-0">Don't have an account? <a href="/auth/register">Register here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+    const errorDiv = document.getElementById('error-message');
+    
+  
+    submitBtn.disabled = true;
+    submitText.classList.add('d-none');
+    submitSpinner.classList.remove('d-none');
+    errorDiv.classList.add('d-none');
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            window.location.href = '/';
+        } else {
+            errorDiv.textContent = data.error || 'Login failed';
+            errorDiv.classList.remove('d-none');
+            submitBtn.disabled = false;
+            submitText.classList.remove('d-none');
+            submitSpinner.classList.add('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.classList.remove('d-none');
+        submitBtn.disabled = false;
+        submitText.classList.remove('d-none');
+        submitSpinner.classList.add('d-none');
+    }
+});
+</script>
+{% endblock %}
