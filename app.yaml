@@ -3,7 +3,7 @@ runtime:python311
 instnace_class: F2
 
 env_variables:
-  SECRET_KEY: "python -c "import secrets; print(secrets.token_hex(24))""
+  SECRET_KEY: "8f4b2a1d9e3c5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e"
 
   GOOGLE_CLOUD_PROJECT: "cloudmart-ecommerce"
 
