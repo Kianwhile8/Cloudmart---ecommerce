@@ -34,7 +34,7 @@ except Exception as e:
 try:
     if not firebase_admin._apps:
         cred = credentials.ApplicationDefault()
-        firebase_admin.initialize_app(Cred)
+        firebase_admin.initialize_app(cred)
     db = firestore.client()
     logger.info("Firebase initialised successfully")
 except Exception as e:
@@ -75,8 +75,8 @@ def server_error(e):
 def user_injection():
     '''injecting session data from user into all templates'''
     return dict(
-        user_email=session.get('user_email')
-        user_role=session.get('user_role')
+        user_email=session.get('user_email'),
+        user_role=session.get('user_role'),
         user_name=session.get('user_name'),
     )
 
