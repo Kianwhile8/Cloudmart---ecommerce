@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Jsonify, session, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, session, render_template, redirect, url_for
 from functools import wraps
 from app.models.user_model import UserModel
 from google.cloud import datastore
@@ -38,7 +38,7 @@ def required_role(role_required):
             
             if session.get("user_role") != role_required:
 
-                return Jsonify({'error': 'Unathorised'}), 403
+                return jsonify({'error': 'Unathorised'}), 403
             return f(*args, **kwargs)
         return decorated_function
     return decorator
@@ -56,7 +56,7 @@ def register():
     #validating inputs
     required_field = ['emial', 'password', 'name']
     if not all(field in data for field in required_field):
-        return Jsonify({'error': 'missing required fields: email, password, name'})
+        return jsonify({'error': 'missing required fields: email, password, name'})
     
     email = data['email'].lower().strip()
     password = data['password']
@@ -66,14 +66,14 @@ def register():
     #validating roles
     valid_roles = ['customer', 'vendor', 'admin']
     if role not in valid_roles:
-        return Jsonify({
+        return jsonify({
             'error' : f'Invalid role. user role must be: {",".join(valid_roles)}'
         }), 400
     
     #evaluate password strength
 
     if len(password) < 8:
-        return Jsonify ({
+        return jsonify ({
             'error': 'password must be atleast 8 charectors long'
         }), 400
     
@@ -82,10 +82,10 @@ def register():
         user = user_model.create_user(email, password, name, role)
     except Exception as e:
         logger.error(f"Error creating user: {email}, {str(e)}")
-        return Jsonify({'error': 'internal server error'}), 500
+        return jsonify({'error': 'internal server error'}), 500
     if user:
         logger.info(f"REGISTRATION COMPLETE: {email}")
-        return Jsonify({
+        return jsonify({
             'message': 'registration succesful',
             'user': {
                 'email': user['email'],
@@ -94,7 +94,7 @@ def register():
             }
         }), 201
     else:
-        return Jsonify({'error': 'Email already exists'}), 409
+        return jsonify({'error': 'Email already exists'}), 409
     
 
 '''adding login routes'''
@@ -111,15 +111,15 @@ def login():
     password verified using usermodel
     returns success response'''
 
-    data = request.get_Json() or request.form.to_dict()
+    data = request.get_json() or request.form.to_dict()
 
-    email = data.get('email', '').lower().stip()
+    email = data.get('email', '').lower().strip()
     password = data.get('password', '')
 
     #validating inputs
 
     if not email or not password:
-        return Jsonify({"error": 'email and passwrod required'}), 400
+        return jsonify({"error": 'email and passwrod required'}), 400
         
     #verifying credentials
 
@@ -133,7 +133,7 @@ def login():
 
         logger.info(f"user logged in: {email}")
 
-        return Jsonify({
+        return jsonify({
             'message': 'login successful',
             'user':{
                 'email': user['email'],
@@ -143,7 +143,7 @@ def login():
          }), 200
     else:
         logger.warning(f"failed to login: {email}")
-        return Jsonify({'error': 'invalid email address or password'}), 401
+        return jsonify({'error': 'invalid email address or password'}), 401
         
 
 '''creating log out route'''
@@ -168,8 +168,8 @@ def profile():
     if user:
         user_data = user.copy()
         user_data.pop('password_hash', None)
-        return Jsonify(user_data), 200
-    return Jsonify({'error': 'user not found'}), 404
+        return jsonify(user_data), 200
+    return jsonify({'error': 'user not found'}), 404
 
 @bp.route('/profile', methods = ['PUT'])
 @required_login
@@ -185,21 +185,23 @@ def update_profile():
     update_data = {k: v for k, v in data.items() if k in allowed_fields}
 
     if not update_data:
-        return Jsonify ({'error: no valid fields to update'}), 400
+        return jsonify ({'error: no valid fields to update'}), 400
     # updating user
     try:
         user = user_model.get_user_by_email(session['user_email'])
 
         if not user:
-            return Jsonify({'error': 'user not found'}), 404
+            return jsonify({'error': 'user not found'}), 404
 
         if 'name' in update_data:
             session['user_name'] = update_data['name']
 
         user_model.update_user(session['user_email'], update_data)
-        return Jsonify({'message' : 'profile updated successfully'}), 200
+        return jsonify({'message' : 'profile updated successfully'}), 200
     except Exception as e:
         logger.error(f"Error updating profile for {session['user_email']}: {str(e)}")
-        return Jsonify({'error': 'internal server error'}), 500 
+        return jsonify({'error': 'internal server error'}), 500 
+    
+    Json
 
     
