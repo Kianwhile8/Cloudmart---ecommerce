@@ -3,8 +3,11 @@ runtime:python311
 instnace_class: F2
 
 env_variables:
-  SECRET_KEY: "1234"
-  GOOGLE_CLOUD_PROJECT: "projectID"
+  SECRET_KEY: "python -c "import secrets; print(secrets.token_hex(24))""
+
+  GOOGLE_CLOUD_PROJECT: "cloudmart-ecommerce"
+
+  DATABASE_URL: 'mysql+pymysql://cloudmart_user:BigBrain321?!@/cloudmart?unix_socket=/cloudsql/YOUR_CONNECTION_NAME'
 
 handlers:
 - url: /static
@@ -22,4 +25,7 @@ automatic_scaling:
   min_pending_latency: 30ms
   max_pending_latency: automatic
   max_concurrent_requests: 50
+
+  beta_settings:
+    cloud_sql_instances: "cloudmart-ecommerce:europe-west1:cloudmart-sql"
   
