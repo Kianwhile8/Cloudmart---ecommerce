@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded-3 mb-4">
+    <h1 class="display-4">Welcome to CloudMart</h1>
+    <p class="lead">Your trusted multi-vendor e-commerce platform</p>
+    <hr class="my-4">
+    <p>Discover an array of products from vendors all over the globe</p>
+    <a class="btn btn-primary btn-lg me-2" href="/products" role="button">Browse Products</a>
+    {% if not session.user_email %}
+    <a class="btn btn-outline-primary btn-lg" href="/auth/register" role="button">Get Started</a>
+    {% endif %}
+</div>
+
+<!-- Features -->
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3" style="font-size: 3rem;">🛡️</div>
+                <h5 class="card-title">Secure</h5>
+                <p class="card-text">high level of security and data storage protection</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3" style="font-size: 3rem;">☁️</div>
+                <h5 class="card-title">Scalable</h5>
+                <p class="card-text">Built on Google Cloud Platform to handle any load with automatic scaling</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="mb-3" style="font-size: 3rem;">⚡</div>
+                <h5 class="card-title">Fast</h5>
+                <p class="card-text">high level performance with streamlines databases</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products -->
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Featured Products</h2>
+        <div id="featured-products" class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- Products loaded via JavaScript -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/// Fetch and display featured products
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        
+        const response = await fetch('/api/products/?limit=6');
+        const products = await response.json();
+        
+        const container = document.getElementById('featured-products');
+        
+        if (products.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-muted"><p>No products available yet</p></div>';
+            return;
+        }
+        
+        container.innerHTML = products.map(product => `
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${product.name}</h5>
+                        <p class="card-text text-muted small flex-grow-1">${product.description.substring(0, 100)}...</p>
+                        <div class="mt-auto">
+                            <p class="h4 text-success mb-3">$${product.price.toFixed(2)}</p>
+                            <span class="badge bg-secondary me-2">${product.category}</span>
+                            <span class="badge bg-info">${product.stock_quantity} in stock</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading products:', error);
+        document.getElementById('featured-products').innerHTML = 
+            '<div class="col-12 text-center text-muted"><p>Unable to load products</p></div>';
+    }
+});
+</script>
+{% endblock %}
