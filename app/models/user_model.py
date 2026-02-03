@@ -120,12 +120,13 @@ class UserModel:
     def list_users(self, role= None, limit = 100):
 
         "lists all userse, can be filtered by role"
+        query =self.client.query(kind=self.kind)
         if role:
             query.add_filter("role", "=", role)
-            query.order=["-creaeed_at"] #newest first
+        query.order=["-created_at"] #newest first
 
-            results = list(query.fetch(limit=limit))
-            return [self._entity_to_diuct(entity) for entity in results]
+        results = list(query.fetch(limit=limit))
+        return [self._entity_to_dict(entity) for entity in results]
 
     def delete_user(self,email):
 
