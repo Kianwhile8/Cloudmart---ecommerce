@@ -6,7 +6,7 @@ import os
 import logging
 
 
-base = declarative_base()
+Base = declarative_base()
 logger= logging.getLogger(__name__)
 
 
@@ -25,7 +25,7 @@ class Order(Base):
     
     items = relationship("OrderItem", back_populates ="order", cascade="all, delete-orphan")
 
-class OrderItem(base):
+class OrderItem(Base):
     '''orders table items'''
     __tablename__ = 'order_items'
 
@@ -152,10 +152,10 @@ class OrderModel:
         try:
             orders = session.query(Order)\
                 .filter_by(customer_email = customer_email)\
-                .order_by(order.created_at.desc())\
+                .order_by(Order.created_at.desc())\
                 .limit(limit)\
                 .all()
-            return [self._order_to_dict(orders) for order in orders] 
+            return [self._order_to_dict(order) for order in orders] 
         finally:
             session.close()
     
