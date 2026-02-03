@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify, session
 from app.routes.auth_routes import login_required
-from app.models.order_module import orderModel
+from app.models.order_model import orderModel
 from app.models.product_model import ProductModel
 from firebase_admin import firestore
-import request
+import requests
 import os
 import logging
 
@@ -42,16 +42,17 @@ def create_order():
             }), 400
         
         order_items.append({
-            'product_id': product_id
-            'product_name': product['name']
+            'product_id': product_id,
+            'product_name': product['name'],
             'quantity': quantity,
             'unit_price': product['price']
         })
+
         # creating order
     order = order_model.create_order(
         customer_email=session['user_email'],
         items=order_items,
-        shipping_adress=data['shipping_address']
+        shipping_adress=data['shipping_address'],
         payment_method=data['payment_method'] 
        )
     
@@ -122,7 +123,7 @@ def update_order_staus(order_id):
     if success:
         return jsonify ({'message' : 'order status updatd succesfully'}), 200
     
-    return jsonify ({;error}: 'failed to update order status'), 500
+    return jsonify ({'error': 'failed to update order status'}), 500
 
 
 
